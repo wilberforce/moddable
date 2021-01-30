@@ -96,6 +96,89 @@ class Flash {
 	}
 }
 
+<<<<<<< HEAD
+=======
+class TouchpadButton {
+	static #state = {
+		active: {},
+		touchpad: undefined,
+		previous: 0
+	};
+
+	#pin;
+	#onPush;
+
+	constructor(options) {
+		this.#pin = options.pin;
+		this.#onPush = options.onPush;
+
+		if (TouchpadButton.#state.active[this.#pin])
+			throw new Error("in use");
+
+		TouchpadButton.#state.active[this.#pin] = this;
+
+		if (!TouchpadButton.#state.touchpad) {
+			TouchpadButton.#state.touchpad = new Touchpad({guard: config.touchpad.guard, sensitivity: config.touchpad.sensitivity});
+			TouchpadButton.#state.touchpad.onChanged = function() {
+				const status = TouchpadButton.#state.touchpad.status;
+				let changes = status ^ TouchpadButton.#state.previous;
+				
+				let i = 0;
+				while (changes) {
+					if (changes & 0x01) {
+						const value = (status >> i) & 0x01;
+						TouchpadButton.#state.active[i]?.#onPush?.(value);
+					}
+					changes >>= 1;
+					i++;
+				}
+
+				TouchpadButton.#state.previous = status;
+			}
+		}
+		TouchpadButton.#state.touchpad.add({pin: this.#pin});
+	}
+
+	close() {
+		if (undefined === this.#pin)
+			return;
+		
+		TouchpadButton.#state.touchpad.remove(this.#pin);
+		delete TouchpadButton.#state.active[this.#pin];
+		this.#pin = undefined;
+
+		if (Object.keys(TouchpadButton.#state.active).length)
+			return;
+
+		TouchpadButton.#state.touchpad.close();
+		TouchpadButton.#state.touchpad = undefined;
+	}
+
+	read() {
+		let status = TouchpadButton.#state.touchpad.status;
+		return (status >> this.#pin) & 0x01;
+	}
+
+	get pressed() {
+		let status = TouchpadButton.#state.touchpad.status;
+		return (((status >> this.#pin) & 0x01) == 1);
+	}
+}
+
+function createTouch(pin) {
+	if (pin === undefined) return;
+	const i = pin;
+	return class {
+		constructor(options) {
+			return new TouchpadButton({
+				...options,
+				pin: i
+			});
+		}
+	};
+}
+
+>>>>>>> 3ee33324ef67e8e1629539326b6331c38baf39ec
 class NeoPixelLED extends NeoPixel {
 	#value = 0;
 	read() {
@@ -130,6 +213,10 @@ globalThis.Host = {
 		E: create(4),
 		F: create(5)
 	},
+<<<<<<< HEAD
+=======
+	Touchpad: { },
+>>>>>>> 3ee33324ef67e8e1629539326b6331c38baf39ec
 	LED: {
 		Default: class {
 			constructor(options) {
@@ -146,6 +233,13 @@ globalThis.Host = {
 	}
 };
 
+<<<<<<< HEAD
+=======
+if (config.touchpad?.pins)
+	for (let x in config.touchpad.pins)
+		Host.Touchpad[x] = createTouch(config.touchpad.pins[x]);
+
+>>>>>>> 3ee33324ef67e8e1629539326b6331c38baf39ec
 const phases = [
 	//red, purple, blue, cyan, green, orange, white, black
 	[1, 0, -1, 0, 0, 1, 0, -1],

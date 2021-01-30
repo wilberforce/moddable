@@ -1,7 +1,7 @@
 # Using the Moddable SDK with ESP32
 
 Copyright 2016-2020 Moddable Tech, Inc.<BR>
-Revised: December 1, 2020
+Revised: January 12, 2021
 
 This document provides a guide to building apps for the [ESP32](https://www.espressif.com/en/products/socs/esp32) with the Moddable SDK.
 
